@@ -1,8 +1,16 @@
 {
-  "posts": [
+  "palabras": [
     {
       "id": 1,
-      "title": "hello"
+      "title": "Tigre",
+      "nameSearch": "TIGRE",
+      "description": "Animal con lineas"
+    },
+    {
+      "id": 2,
+      "title": "Ballena",
+      "nameSearch": "BALLENA",
+      "description": "Animal que vive en el agua"
     }
   ],
   "profile": {
