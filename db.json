@@ -1,5 +1,4 @@
-{
-  "palabras": [
+[
     {
       "id": 1,
       "title": "Tigre",
@@ -12,5 +11,4 @@
       "nameSearch": "BALLENA",
       "description": "Animal que vive en el agua"
     }
-  ]
-}
+]
