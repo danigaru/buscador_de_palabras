@@ -11,6 +11,18 @@
       "title": "Ballena",
       "nameSearch": "BALLENA",
       "description": "Animal que vive en el agua"
+    },
+    {
+      "id": 3,
+      "title": "Tigre de vengala",
+      "nameSearch": "TIGREDEVENGALA",
+      "description": "Animal con peligroso"
+    },
+    {
+      "id": 4,
+      "title": "Manzanas",
+      "nameSearch": "MANZANAS",
+      "description": "Fruta roja"
     }
   ],
 }
