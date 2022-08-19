@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Grid } from "@mui/material";
-import MaterialTable from "@material-table/core";
+import { Grid, IconButton, Tooltip } from "@mui/material";
+import MaterialTable, { MTableToolbar } from "@material-table/core";
+import { Edit } from "@mui/icons-material";
+import ResponseElement from "./principal/ResponseElement";
 
 function App() {
   const [works, setWorks] = useState([]);
   const [general, setGeneral] = useState({isLoading: false, isError: true, messageError: ""});
-  const [newWork, setNewWork] = useState({title: "", description: ""});
+  const [newWork, setNewWork] = useState({title: "", description: ""}),
+  [responseData, setResponseData] = useState({ errorType: 'error', messageType: '', openResponse: true, });
 
   useEffect( () => {
     getData()
@@ -59,34 +62,87 @@ function App() {
 
   const saveData = () => {
     console.log(newWork)
-    const newWorks = [...works, {
-      "id": new Date().getTime(),
-      "title": newWork.title,
-      "label": newWork.title?.toUpperCase()?.trim(),
-      "description": newWork.description
-    }]
+
+    let newWorks = []
+    const {title, description, id, label} = newWork;
+    if(id) {
+      newWorks = works.map((item) => item.id === id ? {...item, label: title?.toUpperCase()?.trim(), title: title, description: description} : item )
+    } else {
+      newWorks = [...works, {
+        "id": new Date().getTime(),
+        "title": title,
+        "label": title?.toUpperCase()?.trim(),
+        "description": description
+      }]
+    }
     localStorage.setItem("works", JSON.stringify(newWorks))
+    setResponseData({errorType: "success", messageType: "Registro con éxito", openResponse: false})
     getData();
+    setNewWork({title: "", description: ""});
   }
 
+  const editItem = (rowData) => {
+    console.log(rowData)
+    const {title, description, id} = rowData;
+    setNewWork({title, description, id})
+  }
+
+  const handClose = (_, reason) => {
+    if (reason === 'clickaway') {return}
+    setResponseData({errorType: "", messageType: "", openResponse: false})
+  };
+
+  const { errorType, messageType, openResponse} = responseData;
 
   return (
     <div className="">
-        <div className="container mt-5">
-          <Grid container spacing={2} >
-              <Grid item xs={2}>
-                <button type="button" className="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal"> Nueva palabra </button>
-              </Grid>
-          </Grid>
-          <div className="mt-3">
+      <ResponseElement type={errorType} content={messageType} open={openResponse} handClose={handClose}/>
+        <div className="container mt-1">
+          <div className="mt-1">
             <MaterialTable
+              localization={{
+                toolbar: {searchPlaceholder: "Buscar",searchTooltip: "Buscar "},
+                pagination:{labelRowsSelect:"Registros",labelRowsPerPage:"Filas por pagina",
+                            labelDisplayedRows: 'Registros {from} al {to} de {count}',
+                            previousTooltip:'Pagina anterior', nextTooltip:'Página siguiente', lastTooltip:'Última página', firstTooltip:'Primera página'},
+                body: {deleteTooltip: "Eliminar",emptyDataSourceMessage: "No existen registros"},
+                header:{ actions: 'Opciones'}
+              }}
               title="Buscador de palabras"
               columns={[
-                { title: 'Title', field: 'title' },
-                { title: 'Descripción', field: 'description', type: 'numeric' },
+                { title: 'Titulo', field: 'title',  },
+                { title: 'Descripción', field: 'description', },
+                { title: 'Acción', field: 'accion', filtering: false,
+                render: rowData=><div style={{minWidth: '100px'}}>
+                    {
+                        (<div>
+                            <Tooltip title={"Editar registro"}>
+                                <IconButton data-bs-toggle="modal" data-bs-target="#exampleModal" size={"medium"}  onClick={() => editItem(rowData)}><Edit/></IconButton>
+                            </Tooltip>
+                        </div>)
+                    }
+                    </div>
+                },
               ]}
               data={works}
-              actions={[]}
+              options={{
+                filtering: true,
+                pageSize: 10,
+                headerStyle: {
+                  backgroundColor: '#01579b',
+                  color: '#FFF',
+                }
+              }}
+              components={{
+                Toolbar: props => (
+                  <div>
+                     <MTableToolbar {...props} />
+                    <div style={{padding: '0px 10px', marginBottom: '10px'}}>
+                    <button type="button" className="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => setNewWork({title: "", description: ""})}> Nueva palabra </button>
+                    </div>
+                  </div>
+                ),
+              }}
             />
           </div>
         </div>
@@ -101,11 +157,11 @@ function App() {
               <form>
                 <div className="mb-3">
                   <label htmlFor="exampleInputEmail1" className="form-label">Título: *</label>
-                  <input onChange={(event) => setNewWork({...newWork, title: event.target.value})} type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+                  <input value={newWork.title} onChange={(event) => setNewWork({...newWork, title: event.target.value})} type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="exampleInputPassword1" className="form-label">Descripción: *</label>
-                  <input onChange={(event) => setNewWork({...newWork, description: event.target.value})} type="text" className="form-control" id="exampleInputPassword1" />
+                  <label  htmlFor="exampleInputPassword1" className="form-label">Descripción: *</label>
+                  <input value={newWork.description} onChange={(event) => setNewWork({...newWork, description: event.target.value})} type="text" className="form-control" id="exampleInputPassword1" />
                 </div>
               </form>
               </div>
